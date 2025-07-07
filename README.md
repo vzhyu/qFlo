@@ -1,4 +1,4 @@
-# cueFlo
+# qFlo
 
 Add cue files to provided folder. Make sure folder is in same directory as cueFlo.scd file. Files will populate in interface in numerical order by filename.
 
