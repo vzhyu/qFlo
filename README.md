@@ -4,7 +4,7 @@ Requires SuperCollider. Download (free and open source) at https://supercollider
 
 Introduction video can be found at https://www.youtube.com/watch?v=HNryFHZoLT0.
 
-Selected works that used qFlo during composition and performance:
+Selected works that have used qFlo during composition and performance:
 
 Liann J. Kang: L'amour pur (2024) https://www.youtube.com/watch?v=teEXGz2cjvw
 
