@@ -87,39 +87,53 @@ s.waitForBoot({
 					ampValue = slider.value.linexp(0, 1, ~ampMin.dbamp, ~ampMax.dbamp);
 					~synthArgs[synth][\amp] = ampValue;
 					// ~synthArgs[synth][\amp].postln;
-					boxValue = ampValue.ampdb.round(0.1);
-					if (boxValue >= 0, {
-						boxString = "+" ++ boxValue.asString;
-					}, {
-						boxString = boxValue.asString;
-					}
-					);
-					if (~editWindow.isNil == false, {
-						if(~editWindow.isClosed == false, {
-							var row, boxIndex, rowIndex, box;
-							// rowIndex = (~cueSelect.value + 1);
-							rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-							~setArgs.do({
-								arg set, i;
-								var candidate;
-								// i.postln;
-								if (i > 0, {
-									candidate = set[\slider];
-									// candidate.postln;
-									if (candidate == slider, {
-										boxIndex = set[\index];
-										box = ~cueBoxes[rowIndex][boxIndex];
-										~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-										box.value_(boxString + "dB");
-										~cueList[~mvtSelect.value][rowIndex][boxIndex] = ampValue;
-
-									});
-								});
-							});
+					boxConvert = {
+						arg ampValue;
+						var boxValue;
+						boxValue = ampValue.ampdb.round(0.1);
+						if (boxValue >= 0, {
+							boxString = "+" ++ boxValue.asString;
+						}, {
+							boxString = boxValue.asString;
 						});
-					});
+						boxString = boxString + "dB";
+					};
+
+					~editCueSlider.(val: ampValue, slider:slider, convert:boxConvert);
+
+					// if (~editWindow.isNil == false, {
+					// 	if(~editWindow.isClosed == false, {
+					// 		var row, boxIndex, rowIndex, box;
+					// 		// rowIndex = (~cueSelect.value + 1);
+					// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+					// 		if(~cueNumber == -1, {
+					// 			rowIndex = 0;
+					// 			}, {
+					// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+					// 			}
+					// 		);
+					//
+					// 		~setArgs.do({
+					// 			arg set, i;
+					// 			var candidate;
+					// 			// i.postln;
+					// 			if (i > 0, {
+					// 				candidate = set[\slider];
+					// 				// candidate.postln;
+					// 				if (candidate == slider, {
+					// 					boxIndex = set[\index];
+					// 					box = ~cueBoxes[rowIndex][boxIndex];
+					// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+					// 					box.value_(boxString + "dB");
+					// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = ampValue;
+					//
+					// 				});
+					// 			});
+					// 		});
+					// 	});
+					// });
 					synth.set(\amp, ampValue, \ampLag, 0);
-					box.value_(boxString + "dB");
+					box.value_(boxString);
 				}),
 				box = TextField(w)
 				.fixedWidth_(70)
@@ -325,29 +339,37 @@ s.waitForBoot({
 				pan = panSlider.value.linlin(0, 1, -1, 1);
 				synth.set(\pan, pan, \panLag, 0);
 				~synthArgs[synth][\pan] = pan;
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == panSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(pan.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val:pan, slider:panSlider);
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				//
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == panSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(pan.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 			panBox = TextField.new(w);
@@ -366,31 +388,37 @@ s.waitForBoot({
 				revTimeBox.value_(revTime.round(0.1));
 				synth.set(\revTime, revTime, \revTimeLag, 0);
 				~synthArgs[synth][\revTime] = revTime;
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-
-						// rowIndex = (~cueSelect.value + 1);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == revTimeSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(revTime.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = revTime;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val:revTime, slider: revTimeSlider);
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		// rowIndex = (~cueSelect.value + 1);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == revTimeSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(revTime.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = revTime;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 			});
 
 			revTimeBox = TextField.new(w)
@@ -427,31 +455,39 @@ s.waitForBoot({
 				dampBox.value_(damp.round(0.01));
 				synth.set(\damp, damp, \dampLag, 0);
 				~synthArgs[synth][\damp] = damp;
-				if(~editWindow.isNil == false, {
-
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						// rowIndex = (~cueSelect.value + 1);
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == dampSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(damp.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = damp;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val: damp, slider:dampSlider);
+				// if(~editWindow.isNil == false, {
+				//
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueSelect.value + 1);
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				//
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == dampSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(damp.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = damp;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 
@@ -490,30 +526,38 @@ s.waitForBoot({
 				mixBox.value_(mix.round(0.01));
 				synth.set(\mix, mix, \mixLag, 0);
 				~synthArgs[synth][\mix] = mix;
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						// rowIndex = (~cueSelect.value + 1);
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == mixSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(mix.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = mix;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val: mix, slider: mixSlider);
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueSelect.value + 1);
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				//
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == mixSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(mix.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = mix;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 
 				w.focus;
@@ -610,8 +654,8 @@ s.waitForBoot({
 				0, \revTime,
 				1, \damp,
 				2, \mix,
-				3, \pan,
-				\numArgs, 4,
+				// 3, \pan,
+				\numArgs, 3,
 				// \setArgs, [\revTime, \damp, \mix],
 				\revTime, (
 					\slider: revTimeSlider,
@@ -745,29 +789,37 @@ s.waitForBoot({
 				pan = panSlider.value.linlin(0, 1, -1, 1);
 				synth.set(\pan, pan, \panLag, 0);
 				~synthArgs[synth][\pan] = pan;
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == panSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(pan.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val: pan, slider:panSlider);
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				//
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == panSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(pan.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 			panBox = TextField.new(w);
@@ -786,30 +838,37 @@ s.waitForBoot({
 				rateBox.value_(rate.round(0.1));
 				synth.set(\rate, rate, \rateLag, 0);
 				~synthArgs[synth][\rate] = rate;
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == rateSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(rate.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = rate;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val:rate, slider:rateSlider);
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == rateSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(rate.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = rate;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 			});
 
 			rateBox = TextField.new(w)
@@ -846,30 +905,37 @@ s.waitForBoot({
 				decayBox.value_(decay.round(0.1));
 				synth.set(\decay, decay, \decayLag, 0);
 				~synthArgs[synth][\decay] = decay;
+				~editCueSlider.(val:decay, slider:decaySlider);
 
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == decaySlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(decay.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = decay;
-								});
-							});
-						});
-					});
-				});
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == decaySlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(decay.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = decay;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 
@@ -908,30 +974,37 @@ s.waitForBoot({
 				mixBox.value_(mix.round(0.1));
 				synth.set(\mix, mix, \mixLag, 0);
 				~synthArgs[synth][\mix] = mix;
+				~editCueSlider.(val:mix, slider:mixSlider);
 
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == mixSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(mix.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = mix;
-								});
-							});
-						});
-					});
-				});
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == mixSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(mix.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = mix;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 
@@ -1150,29 +1223,36 @@ s.waitForBoot({
 				pan = panSlider.value.linlin(0, 1, -1, 1);
 				synth.set(\pan, pan, \panLag, 0);
 				~synthArgs[synth][\pan] = pan;
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == panSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(pan.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val:pan, slider:panSlider);
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == panSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(pan.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 			panBox = TextField.new(w);
@@ -1314,29 +1394,36 @@ s.waitForBoot({
 				synth.set(\pan, pan, \panLag, 0);
 				~fluxDelayPairs[synth][\synth].set(\pan, pan, \panLag, 0);
 				~synthArgs[synth][\pan] = pan;
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == panSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(pan.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val:pan, slider:panSlider);
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == panSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(pan.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 			panBox = TextField.new(w);
@@ -1359,7 +1446,13 @@ s.waitForBoot({
 				if(~editWindow.isNil == false, {
 					if(~editWindow.isClosed == false, {
 						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+						// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+						if(~cueNumber == -1, {
+							rowIndex = 0;
+						}, {
+							rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+						}
+						);
 						~setArgs.do({
 							arg set, i;
 							var candidate;
@@ -1418,30 +1511,37 @@ s.waitForBoot({
 				synth.set(\decay, decay, \decayLag, 0);
 				~fluxDelayPairs[synth][\synth].set(\decay, decay, \decayLag, 0);
 				~synthArgs[synth][\decay] = decay;
+				~editCueSlider.(val:decay, slider:decaySlider);
 
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == decaySlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(decay.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = decay;
-								});
-							});
-						});
-					});
-				});
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == decaySlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(decay.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = decay;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 
@@ -1481,30 +1581,37 @@ s.waitForBoot({
 				synth.set(\mix, mix, \mixLag, 0);
 				~fluxDelayPairs[synth][\synth].set(\mix, mix);
 				~synthArgs[synth][\mix] = mix;
+				~editCueSlider.(val:mix, slider:mixSlider);
 
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == mixSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(mix.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = mix;
-								});
-							});
-						});
-					});
-				});
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == mixSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(mix.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = mix;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 
@@ -1738,29 +1845,37 @@ s.waitForBoot({
 				pan = panSlider.value.linlin(0, 1, -1, 1);
 				synth.set(\pan, pan, \panLag, 0);
 				~synthArgs[synth][\pan] = pan;
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
+				~editCueSlider.(val:pan, slider:panSlider);
 
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == panSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(pan.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
-								});
-							});
-						});
-					});
-				});
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == panSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(pan.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = pan;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 			panBox = TextField.new(w);
@@ -1777,30 +1892,37 @@ s.waitForBoot({
 				// density.postln;
 				synth.set(\density, density, \densityLag, 0);
 				~synthArgs[synth][\density] = density;
+				~editCueSlider.(val:density, slider:dordSlider);
 
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == dordSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(density.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = density;
-								});
-							});
-						});
-					});
-				});
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == dordSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(density.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = density;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 			});
 
@@ -1844,30 +1966,37 @@ s.waitForBoot({
 				durBox.value_(dur.round(0.001));
 				synth.set(\dur, dur, \durLag, 0);
 				~synthArgs[synth][\dur] = dur;
+				~editCueSlider.(val:dur, slider:durSlider);
 
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == durSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(dur.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = dur;
-								});
-							});
-						});
-					});
-				});
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == durSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(dur.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = dur;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 				w.focus;
 			});
@@ -1904,30 +2033,36 @@ s.waitForBoot({
 				mixBox.value_(mix.round(0.01));
 				synth.set(\mix, mix, \mixLag, 0);
 				~synthArgs[synth][\mix] = mix;
-
-				if(~editWindow.isNil == false, {
-					if(~editWindow.isClosed == false, {
-						var row, boxIndex, rowIndex, box;
-						rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-						~setArgs.do({
-							arg set, i;
-							var candidate;
-							// i.postln;
-
-							if (i > 0, {
-								candidate = set[\slider];
-								// candidate.postln;
-								if (candidate == mixSlider, {
-									boxIndex = set[\index];
-									box = ~cueBoxes[rowIndex][boxIndex];
-									~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-									box.value_(mix.round(0.01));
-									~cueList[~mvtSelect.value][rowIndex][boxIndex] = mix;
-								});
-							});
-						});
-					});
-				});
+				~editCueSlider.(val:mix, slider:mixSlider);
+				// if(~editWindow.isNil == false, {
+				// 	if(~editWindow.isClosed == false, {
+				// 		var row, boxIndex, rowIndex, box;
+				// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				// 		if(~cueNumber == -1, {
+				// 			rowIndex = 0;
+				// 			}, {
+				// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				// 			}
+				// 		);
+				// 		~setArgs.do({
+				// 			arg set, i;
+				// 			var candidate;
+				// 			// i.postln;
+				//
+				// 			if (i > 0, {
+				// 				candidate = set[\slider];
+				// 				// candidate.postln;
+				// 				if (candidate == mixSlider, {
+				// 					boxIndex = set[\index];
+				// 					box = ~cueBoxes[rowIndex][boxIndex];
+				// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+				// 					box.value_(mix.round(0.01));
+				// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = mix;
+				// 				});
+				// 			});
+				// 		});
+				// 	});
+				// });
 
 				w.focus;
 
@@ -2004,11 +2139,11 @@ s.waitForBoot({
 					dur = ~synthArgs[synth][\durKBus].getSynchronous;
 					// dur.postln;
 					mix = ~synthArgs[synth][\mixKBus].getSynchronous;
-					pan = ~synthArgs[synth][\panKBus].getSynchronous;
+					// pan = ~synthArgs[synth][\panKBus].getSynchronous;
 					~synthArgs[synth][\density] = density;
 					~synthArgs[synth][\dur] = dur;
 					~synthArgs[synth][\mix] = mix;
-					~synthArgs[synth][\pan] = pan;
+					// ~synthArgs[synth][\pan] = pan;
 
 					// synth.get(\density, {
 					// 	arg density;
@@ -2039,8 +2174,8 @@ s.waitForBoot({
 				0, \density,
 				1, \dur,
 				2, \mix,
-				3, \pan,
-				\numArgs, 4,
+				// 3, \pan,
+				\numArgs, 3,
 				// \setArgs, [\density, \dur],
 				\density, (
 					\slider: dordSlider,
@@ -2230,41 +2365,52 @@ s.waitForBoot({
 					ampValue = slider.value.linexp(0, 1, ~ampMin.dbamp, ~ampMax.dbamp);
 					~synthArgs[synth][\amp] = ampValue;
 					// ~synthArgs[synth][\amp].postln;
-					boxValue = ampValue.ampdb.round(0.1);
-					if (boxValue >= 0, {
-						boxString = "+" ++ boxValue.asString;
-					}, {
-						boxString = boxValue.asString;
-					}
-					);
-
-					if (~editWindow.isNil == false, {
-						if(~editWindow.isClosed == false, {
-							var row, boxIndex, rowIndex, box;
-							// rowIndex = (~cueSelect.value + 1);
-							rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-							~setArgs.do({
-								arg set, i;
-								var candidate;
-								// i.postln;
-								if (i > 0, {
-									candidate = set[\slider];
-									// candidate.postln;
-									if (candidate == slider, {
-										boxIndex = set[\index];
-										box = ~cueBoxes[rowIndex][boxIndex];
-										~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-										box.value_(boxString + "dB");
-										~cueList[~mvtSelect.value][rowIndex][boxIndex] = ampValue;
-
-									});
-								});
-							});
+					boxConvert = {
+						arg ampValue;
+						var boxValue;
+						boxValue = ampValue.ampdb.round(0.1);
+						if (boxValue >= 0, {
+							boxString = "+" ++ boxValue.asString;
+						}, {
+							boxString = boxValue.asString;
 						});
-					});
+						boxString = boxString + "dB";
+					};
+
+					~editCueSlider.(val: ampValue, slider:slider, convert:boxConvert);
+					// if (~editWindow.isNil == false, {
+					// 	if(~editWindow.isClosed == false, {
+					// 		var row, boxIndex, rowIndex, box;
+					// 		// rowIndex = (~cueSelect.value + 1);
+					// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+					// 		if(~cueNumber == -1, {
+					// 			rowIndex = 0;
+					// 			}, {
+					// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+					// 			}
+					// 		);
+					// 		~setArgs.do({
+					// 			arg set, i;
+					// 			var candidate;
+					// 			// i.postln;
+					// 			if (i > 0, {
+					// 				candidate = set[\slider];
+					// 				// candidate.postln;
+					// 				if (candidate == slider, {
+					// 					boxIndex = set[\index];
+					// 					box = ~cueBoxes[rowIndex][boxIndex];
+					// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+					// 					box.value_(boxString + "dB");
+					// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = ampValue;
+					//
+					// 				});
+					// 			});
+					// 		});
+					// 	});
+					// });
 
 					synth.set(\amp, ampValue, \ampLag, 0);
-					box.value_(boxString + "dB");
+					box.value_(boxString);
 				}),
 				box = TextField(w)
 				.fixedWidth_(70)
@@ -2376,42 +2522,53 @@ s.waitForBoot({
 					ampValue = slider.value.linexp(0, 1, ~ampMin.dbamp, ~ampMax.dbamp);
 					~bufAmp = ampValue;
 					~synthArgs[synth][\amp] = ampValue;
-					boxValue = ampValue.ampdb.round(0.1);
-					if (boxValue >= 0, {
-						boxString = "+" ++ boxValue.asString;
-					}, {
-						boxString = boxValue.asString;
-					}
-					);
-
-					if (~editWindow.isNil == false, {
-						if(~editWindow.isClosed == false, {
-							var row, boxIndex, rowIndex, box;
-							// rowIndex = (~cueSelect.value + 1);
-							rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
-							~setArgs.do({
-								arg set, i;
-								var candidate;
-								// i.postln;
-								if (i > 0, {
-									candidate = set[\slider];
-									// candidate.postln;
-									if (candidate == slider, {
-										boxIndex = set[\index];
-										box = ~cueBoxes[rowIndex][boxIndex];
-										~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
-										box.value_(boxString + "dB");
-										~cueList[~mvtSelect.value][rowIndex][boxIndex] = ampValue;
-
-									});
-								});
-							});
+					boxConvert = {
+						arg ampValue;
+						var boxValue;
+						boxValue = ampValue.ampdb.round(0.1);
+						if (boxValue >= 0, {
+							boxString = "+" ++ boxValue.asString;
+						}, {
+							boxString = boxValue.asString;
 						});
-					});
+						boxString = boxString + "dB";
+					};
+					~editCueSlider.(val: ampValue, slider:slider, convert:boxConvert);
+
+					// if (~editWindow.isNil == false, {
+					// 	if(~editWindow.isClosed == false, {
+					// 		var row, boxIndex, rowIndex, box;
+					// 		// rowIndex = (~cueSelect.value + 1);
+					// 		// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+					// 		if(~cueNumber == -1, {
+					// 			rowIndex = 0;
+					// 			}, {
+					// 				rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+					// 			}
+					// 		);
+					// 		~setArgs.do({
+					// 			arg set, i;
+					// 			var candidate;
+					// 			// i.postln;
+					// 			if (i > 0, {
+					// 				candidate = set[\slider];
+					// 				// candidate.postln;
+					// 				if (candidate == slider, {
+					// 					boxIndex = set[\index];
+					// 					box = ~cueBoxes[rowIndex][boxIndex];
+					// 					~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+					// 					box.value_(boxString + "dB");
+					// 					~cueList[~mvtSelect.value][rowIndex][boxIndex] = ampValue;
+					//
+					// 				});
+					// 			});
+					// 		});
+					// 	});
+					// });
 
 					synth.set(\amp, ampValue, \ampLag, 0);
 					~bufGroup.set(\amp, ampValue, \ampLag, 0);
-					box.value_(boxString + "dB");
+					box.value_(boxString);
 				}),
 				box = TextField(w)
 				.fixedWidth_(70)
@@ -3140,7 +3297,11 @@ s.waitForBoot({
 					number: j+1,
 					ctrlfn: {
 						~cues[i][j+1].();
+					},
+					nextfn: {
+						~cues[i][j+2].();
 					}
+
 
 				)
 			});
@@ -3661,6 +3822,7 @@ s.waitForBoot({
 				});
 			});
 		};
+		~lastAction = \advanceCue;
 
 	};
 
@@ -3693,6 +3855,7 @@ s.waitForBoot({
 		// ~prepMvt.();
 		m.sendMsg("stop", 1);
 		m.sendMsg("stop", 0);
+		~lastAction = \reset;
 
 	};
 
@@ -3793,6 +3956,43 @@ s.waitForBoot({
 			0.1.wait;
 		}.loop;
 	});
+
+	~editCueSlider = {
+		arg val, slider, convert = {val.round(0.01)};
+		var boxString;
+		boxString = convert.(val);
+		if(~editWindow.isNil == false, {
+			if(~editWindow.isClosed == false, {
+				var row, boxIndex, rowIndex, box;
+				// rowIndex = (~cueNumber + 1).clip(0, ~cueSelect.items.size);
+				if(~cueNumber == -1, {
+					rowIndex = 0;
+				}, {
+					rowIndex = ~cueNumber + (~lastAction == \editSelect).asInteger;
+				}
+				);
+
+				~setArgs.do({
+					arg set, i;
+					var candidate;
+					// i.postln;
+
+					if (i > 0, {
+						candidate = set[\slider];
+						// candidate.postln;
+						if (candidate == slider, {
+							boxIndex = set[\index];
+							box = ~cueBoxes[rowIndex][boxIndex];
+							~cueRows[rowIndex].background_(Color.red(0.7, 0.3));
+							box.value_(boxString);
+							~cueList[~mvtSelect.value][rowIndex][boxIndex] = val;
+						});
+					});
+				});
+			});
+		});
+
+	};
 
 
 	// ~cues = [
@@ -4151,7 +4351,23 @@ s.waitForBoot({
 									~reset.action.();
 									~cueNumber = -1;
 								}, {
-									~cueSelect.valueAction_(j-1);
+									// j.class.postln;
+
+									~cueSelect.valueAction_(j);
+									~seq.reset;
+									(j-1).do({
+										arg n;
+										var next;
+										// n.postln;
+										next = ~seq.next;
+										// next.postln;
+									});
+									~cueNumber = ~cueNumber-1;
+									~nexttext.string_(~files[j-1].file);
+									~cueSelect.value_(j-1);
+									// 1.class;
+									// j.postln;
+
 								}
 								);
 
@@ -4162,7 +4378,8 @@ s.waitForBoot({
 							row.background_(Color.gray(0.8, 0.5));
 						}
 						);
-					})
+					});
+					~lastAction = \editSelect;
 
 				});
 
@@ -5227,18 +5444,31 @@ s.waitForBoot({
 			~bufGroup.freeAll;
 			defer{ ~curtext.string_(""); }; })
 		.font_(Font(size: 18))
-		.action_({ |n|
+		.action_({
+			arg n, editMode;
+			var value, next;
+			value = n.value;
+			if (value == nil, {
+				value = ~files.size-1;
+			});
+			// n = n.value.clip(-1, (~files.size - 1))
 			~seq.reset;
 			(n.value).do({
-				var next;
+				// var next;
 				next = ~seq.next;
 				// next.postln;
 				next[\ctrlfn].();
 				// ~tempGroup.freeAll;
 
 			});
-			~nexttext.string_(~files[n.value].file);
-			~cueSelect.value_(n.value);
+			if (editMode == true, {
+				next[\nextfn].();
+			});
+
+			// n.value.postln;
+			// n.class.postln;
+			~nexttext.string_(~files[value].file);
+			~cueSelect.value_(value);
 			~cueNumber = ~cueSelect.value;
 			~cueRows.do({
 				arg row, i;
